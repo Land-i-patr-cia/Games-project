@@ -4,7 +4,8 @@ public class PlayerCollision : MonoBehaviour
 {
     void OnCollisionEnter(Collision collisionInfo)
     {
-        //Debug.Log(collisionInfo.collider.name == "Wall");
+        //Could use .tag but cant add tags to unity project
+        Debug.Log(collisionInfo.collider.name == "Wall");
 }
 
 } 

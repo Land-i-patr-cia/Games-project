@@ -8,10 +8,21 @@ public class FollowPlayer : MonoBehaviour
 
     void LateUpdate()
     {
-        if (player == null) return; // Handle cases where the player is not assigned
+        if (player == null)
+        {
+            Debug.LogWarning("Player is not assigned for the camera.");
+            return;
+        }
 
-        Vector3 desiredPosition = player.position + offset;
+        // Calculate desired position
+        Vector3 desiredPosition = player.position + player.rotation * offset;
+
+        // Smoothly interpolate to desired position
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+
         transform.position = smoothedPosition;
+
+        // Optionally, rotate the camera to look in the same direction as the player
+        transform.rotation = Quaternion.Lerp(transform.rotation, player.rotation, smoothSpeed);
     }
 }

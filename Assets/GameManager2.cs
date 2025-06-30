@@ -26,14 +26,14 @@ public class GameManager2 : MonoBehaviour
             Debug.Log("Correct tile: " + tile.tileNumber);
             nextExpectedNumber++;
 
-            // Optional: Change tile color to indicate success
+            // Change tile color to indicate success
             tile.GetComponent<Renderer>().material.color = Color.green;
 
             if (nextExpectedNumber > totalTiles)
             {
                 Debug.Log("Puzzle Completed!");
-                // Add victory logic here
-            }
+                // Add victory logic here once designer (P) is done
+             }
         }
         else
         {
