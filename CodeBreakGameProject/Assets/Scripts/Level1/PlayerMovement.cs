@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
         }
         if (rb != null)
         {
-            rb.velocity = movement * moveSpeed;
+            rb.linearVelocity = movement * moveSpeed;
         }
         else
         {
@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Player hit RogueComponent, resetting to start");
             transform.position = new Vector3(0, 1, 0);
-            if (rb != null) rb.velocity = Vector3.zero;
+            if (rb != null) rb.linearVelocity = Vector3.zero;
         }
     }
 }

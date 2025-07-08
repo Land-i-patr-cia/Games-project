@@ -34,7 +34,7 @@ public class Collectible : MonoBehaviour
             {
                 Debug.LogWarning("AudioSource or collectSound missing on " + gameObject.name);
             }
-            GameManager gm = FindObjectOfType<GameManager>();
+            GameManager gm = FindFirstObjectByType<GameManager>();
             if (gm != null)
             {
                 gm.CollectibleCollected();

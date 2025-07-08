@@ -4,7 +4,7 @@ public class RogueComponent : MonoBehaviour
 {
     public float moveSpeed = 3f;
     private Vector3 startPos;
-    private float minX = -9.9f, maxX = 9.9f, minZ = -9.9f, maxZ = 9.9f; // Level 1 wall bounds
+    private float minX = -14.9f, maxX = 14.9f, minZ = -14.9f, maxZ = 14.9f; // Level 1 wall bounds
     private Animator animator;
 
     void Start()
