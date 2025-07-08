@@ -9,6 +9,9 @@ TagManager:
   - Cpu
   - Ram
   - MainMemory
+  - PickUpGreen
+  - PickUpRed
+  - PickUpYellow
   layers:
   - Default
   - TransparentFX

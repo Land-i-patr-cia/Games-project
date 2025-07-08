@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     private float movementX;
     private float movementY;
 
-    public float speed = 0;
+    public float speed = 5;
 
     public TextMeshProUGUI countText;
     public GameObject winTextObject;
@@ -30,70 +30,94 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
         SetCountText();
         winTextObject.SetActive(false);
     }
 
     void OnMove(InputValue movementValue)
     {
-        Debug.Log("OnMove called");
         Vector2 movementVector = movementValue.Get<Vector2>();
         movementX = movementVector.x;
         movementY = movementVector.y;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        Vector3 movement = new Vector3(movementX, 0.0f, movementY);
-        rb.AddForce(movement * speed);
-        // If carrying, keep collectible with player
+        Vector3 movement = new Vector3(movementX, 0.0f, movementY) * speed;
+        rb.linearVelocity = movement;
+
+        // Carry collectible beside player and keep upright
         if (carriedCollectible != null)
         {
-            carriedCollectible.transform.position = transform.position + new Vector3(0, 1, 0); // Offset above player
+            carriedCollectible.transform.position = transform.position + transform.up * 1.0f + Vector3.up * 0.5f;
+            carriedCollectible.transform.rotation = Quaternion.identity;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Enemy"))
+        {
+            // End or restart the game
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            // Or show a "Game Over" UI, etc.
+            return;
+        }
         // Pick up collectible if not carrying
         if (carriedCollectible == null && other.CompareTag("PickUp"))
         {
             carriedCollectible = other.gameObject;
-            carriedType = carriedCollectible.GetComponent<Collectible>().type; // e.g. "Green", "Red", "Yellow"
-            carriedCollectible.GetComponent<Collider>().enabled = false;
-            // Optionally, disable renderer on ground or set as child
+            var collectibleScript = carriedCollectible.GetComponent<Collectible>();
+            carriedType = collectibleScript != null ? collectibleScript.type : "";
+
+            carriedCollectible.transform.SetParent(transform);
+            var rbCollectible = carriedCollectible.GetComponent<Rigidbody>();
+            if (rbCollectible != null)
+            {
+                rbCollectible.isKinematic = true;
+                rbCollectible.freezeRotation = true;
+            }
+        }
+        // Ignore other collectibles while carrying one
+        else if (carriedCollectible != null && other.CompareTag("PickUp"))
+        {
+            return;
         }
         // Deposit logic
         else if (carriedCollectible != null)
         {
-            // Main Memory (Green)
             if (other.CompareTag("MainMemory") && carriedType == "Green")
             {
-                DepositCollectible(ref mainMemoryCount, mainMemoryTotal);
+                DepositAndDestroy(ref mainMemoryCount, mainMemoryTotal);
             }
-            // RAM (Red)
-            else if (other.CompareTag("RAM") && carriedType == "Red")
+            else if (other.CompareTag("Ram") && carriedType == "Red")
             {
-                DepositCollectible(ref ramCount, ramTotal);
+                DepositAndDestroy(ref ramCount, ramTotal);
             }
-            // CPU (Yellow)
-            else if (other.CompareTag("CPU") && carriedType == "Yellow")
+            else if (other.CompareTag("Cpu") && carriedType == "Yellow")
             {
-                DepositCollectible(ref cpuCount, cpuTotal);
+                DepositAndDestroy(ref cpuCount, cpuTotal);
             }
         }
     }
 
-    void DepositCollectible(ref int count, int total)
+    void DepositAndDestroy(ref int count, int total)
     {
-        Destroy(carriedCollectible);
-        carriedCollectible = null;
-        carriedType = "";
-        count++;
-        SetCountText();
-        if (cpuCount >= cpuTotal && ramCount >= ramTotal && mainMemoryCount >= mainMemoryTotal)
+        if (carriedCollectible != null)
         {
-            winTextObject.SetActive(true);
+            carriedCollectible.transform.SetParent(null);
+            carriedCollectible.GetComponent<Collider>().enabled = false;
+            Destroy(carriedCollectible);
+            carriedCollectible = null;
+            carriedType = "";
+            count++;
+            SetCountText();
+            if (cpuCount >= cpuTotal && ramCount >= ramTotal && mainMemoryCount >= mainMemoryTotal)
+            {
+                winTextObject.SetActive(true);
+            }
         }
     }
 
